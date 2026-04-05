@@ -163,6 +163,16 @@
                 </div>
             </div>
 
+            <!-- Hourly Precipitation -->
+            <div class="mt-8">
+                <h2 class="text-xl font-semibold mb-4">💧 Hourly Precipitation</h2>
+                <div class="glass rounded-2xl p-4">
+                    <div class="grid grid-cols-4 md:grid-cols-8 gap-2 text-center text-sm" id="precipitation">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
             <!-- Weather Radar -->
             <div class="mb-8 mt-8">
                 <h2 class="text-xl font-semibold mb-4">🌦️ Live Weather Radar</h2>
@@ -351,6 +361,43 @@
                     `;
                 }).join('');
                 hourlyContainer.innerHTML = hourlyHTML;
+                
+                // Hourly precipitation
+                const precipContainer = document.getElementById('precipitation');
+                const precipHTML = todayHours.map(h => {
+                    const hour = parseInt(h.time) / 100;
+                    const ampm = hour >= 12 ? 'PM' : 'AM';
+                    const hour12 = hour > 12 ? hour - 12 : hour;
+                    const rainChance = parseInt(h.chanceofrain) || 0;
+                    const snowChance = parseInt(h.chanceofsnow) || 0;
+                    const precipMM = parseFloat(h.precipMM) || 0;
+                    
+                    let precipIcon = '💧';
+                    let precipText = `${rainChance}%`;
+                    let precipDetail = `${precipMM}mm`;
+                    
+                    if (snowChance > rainChance && snowChance > 0) {
+                        precipIcon = '❄️';
+                        precipText = `${snowChance}%`;
+                        precipDetail = `${precipMM}mm`;
+                    }
+                    
+                    // Color coding based on chance
+                    let colorClass = 'text-green-400';
+                    if (rainChance > 30 || snowChance > 30) colorClass = 'text-yellow-400';
+                    if (rainChance > 60 || snowChance > 60) colorClass = 'text-orange-400';
+                    if (rainChance > 80 || snowChance > 80) colorClass = 'text-red-400';
+                    
+                    return `
+                        <div class="flex flex-col items-center">
+                            <div class="opacity-60 mb-2">${hour12} ${ampm}</div>
+                            <div class="text-2xl mb-1">${precipIcon}</div>
+                            <div class="font-bold ${colorClass}">${precipText}</div>
+                            <div class="text-xs opacity-60">${precipDetail}</div>
+                        </div>
+                    `;
+                }).join('');
+                precipContainer.innerHTML = precipHTML;
                 
                 // Update timestamp
                 document.getElementById('last-updated').textContent = `Last updated: ${new Date().toLocaleString()}`;
